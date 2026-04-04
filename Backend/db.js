@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-const mongoURI="mongodb+srv://gaumata:bflmuXuvHMgcgBQk@cluster0.fvvekhf.mongodb.net/"
+const mongoURI="mongodb+srv://gaumata:bflmuXuvHMgcgBQk@cluster0.fvvekhf.mongodb.net/iNotebook";
 mongoose.set("strictQuery", false);
 
 const connectToMongo=async()=>{
@@ -8,4 +8,4 @@ const connectToMongo=async()=>{
     })
 }
 
-module.exports = connectToMongo;
+module.exports = connectToMongo

@@ -18,6 +18,12 @@ const NotesSchema = new Schema({
         type: String,
         default: "General"
     },
+    sharedWith: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     date:{
         type: Date,
         default: Date.now

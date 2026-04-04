@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Notes = (props) => {
   const context = useContext(noteContext);
-  const { notes, getNotes, editNote } = context;
+  const { notes, getNotes, editNote, shareNote } = context;
   let navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem('token')) {
@@ -29,6 +29,8 @@ const Notes = (props) => {
 
   }
 
+  
+
   const handleClick = (e) => {
     editNote(note.id, note.etitle, note.edescription, note.etag)
     console.log("updating the note...", note)
@@ -39,6 +41,29 @@ const Notes = (props) => {
 
   const onChange = (e) => {
     setNote({ ...note, [e.target.name]: e.target.value });
+  }
+
+  const shareRef = useRef(null);
+  const shareCloseRef = useRef(null);
+  const [shareEmail, setShareEmail] = useState("");
+  const [currentNoteId, setCurrentNoteId] = useState("");
+
+  const shareNoteTrigger = (currentNote) => {
+    setCurrentNoteId(currentNote._id);
+    shareRef.current.click(); // Open the share modal
+    setShareEmail(""); // Reset email field
+  }
+
+  const handleShareSubmit = async (e) => {
+    e.preventDefault();
+    const response = await shareNote(currentNoteId, shareEmail);
+    if (response.success) {
+      shareCloseRef.current.click();
+      props.showAlert("Note Shared Successfully", "success");
+    } else {
+      props.showAlert(response.error || "Failed to share", "danger");
+    }
+    
   }
   return (
     <>
@@ -80,6 +105,39 @@ const Notes = (props) => {
               <button ref={refClose} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button disabled={note.etitle.length < 5 || note.edescription.length < 5} onClick={handleClick} type="button" className="btn btn-primary">Update Note</button>
             </div>
+
+          </div>
+        </div>
+      </div>
+      <button ref={shareRef} type="button" className="btn d-none" data-bs-toggle="modal" data-bs-target="#shareModal"></button>
+
+      <div className="modal fade" id="shareModal" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Share Note</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <form>
+                <div className="mb-3">
+                  <label htmlFor="shareEmail" className="form-label">Recipient's Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="shareEmail"
+                    value={shareEmail}
+                    onChange={(e) => setShareEmail(e.target.value)}
+                    placeholder="enteruser@email.com"
+                    required
+                  />
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button ref={shareCloseRef} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button disabled={shareEmail.length < 5} onClick={handleShareSubmit} type="button" className="btn btn-primary">Share</button>
+            </div>
           </div>
         </div>
       </div>
@@ -89,7 +147,7 @@ const Notes = (props) => {
           {(notes.length === 0) && 'No notes to display'}
         </div>
         {notes.map((note) => {
-          return <Noteitem key={note._id} updateNote={updateNote} note={note} showAlert={props.showAlert} />;
+          return <Noteitem key={note._id} updateNote={updateNote} shareNote={shareNoteTrigger} note={note} showAlert={props.showAlert} />;
         })}
       </div>
     </>
