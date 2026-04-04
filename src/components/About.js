@@ -1,9 +1,8 @@
-// About.js
 
-import React from 'react';
 
 const About = () => {
     return (
+        
         <div className="container-fluid bg-light p-5">
             <div className="row justify-content-center">
                 <div className="col-md-8">

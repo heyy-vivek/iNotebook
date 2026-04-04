@@ -4,6 +4,7 @@
   "description": "inotebook-your personal notebook on cloud",
   "main": "index.js",
   "scripts": {
+    "build": "react-scripts build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
