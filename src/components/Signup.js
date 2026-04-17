@@ -2,64 +2,129 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Signup = (props) => {
-  const [credentials, setCredentials] = useState({ name: "", email: "", password: "", cpassword: "" });
+    const [credentials, setCredentials] = useState({ name: "", email: "", password: "", cpassword: "" });
+    let navigate = useNavigate();
 
-  let navigate = useNavigate();
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, password } = credentials;
-    const response = await fetch(`http://localhost:5000/api/auth/createuser`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, email, password })
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { name, email, password, cpassword } = credentials;
 
-    });
-    const json = await response.json();
-    console.log(json);
-    if (json.success) {
-      //save token and redirect
-      localStorage.setItem('token', json.authtoken)
-      navigate("/");
-      props.showAlert("Account created Successfully", "success");
+        // Frontend Validation for Password Match
+        if (password !== cpassword) {
+            props.showAlert("Passwords do not match", "danger");
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/api/auth/createuser`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const json = await response.json();
+        
+        if (json.success) {
+            localStorage.setItem('token', json.authtoken);
+            navigate("/");
+            props.showAlert("Account Created Successfully", "success");
+        } else {
+            props.showAlert(json.error || "Invalid Details", "danger");
+        }
     }
-    else {
-      props.showAlert("Invalid Details", "danger");
+
+    const onChange = (e) => {
+        setCredentials({ ...credentials, [e.target.name]: e.target.value });
     }
-  }
-  const onChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
 
-  }
+    return (
+        <div className="container d-flex align-items-center justify-content-center" style={{ minHeight: "85vh" }}>
+            <div className="card p-4 shadow-lg border-0 rounded-4" style={{ width: "100%", maxWidth: "500px", background: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(10px)" }}>
+                
+                <div className="text-center mb-4">
+                    <div className="display-6 mb-2">🚀</div>
+                    <h2 className="fw-bold text-dark">Join iNotebook</h2>
+                    <p className="text-muted small">Create an account to start organizing your thoughts</p>
+                </div>
 
-  return (
-    <div className='container mt-2'>
-      <h2 className='my-2'>Create an account to use iNotebook</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="my-2">
-          <label htmlFor="name" className="form-label"> Name</label>
-          <input type="text" className="form-control" id="name" name="name" onChange={onChange} aria-describedby="emailHelp" />
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="name" className="form-label fw-semibold small text-uppercase text-muted">Full Name</label>
+                        <div className="input-group">
+                            <span className="input-group-text bg-light border-0"><i className="fa-solid fa-user text-primary"></i></span>
+                            <input 
+                                type="text" 
+                                className="form-control" 
+                                id="name" 
+                                name="name" 
+                                onChange={onChange} 
+                                placeholder="John Doe" 
+                                required 
+                            />
+                        </div>
+                    </div>
 
-        </div>
-        <div className="my-2">
-          <label htmlFor="email" className="form-label">Email address</label>
-          <input type="email" className="form-control" id="email" name="email" onChange={onChange} aria-describedby="emailHelp" />
-          <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
-        </div>
-        <div className="my-2">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input type="password" className="form-control" id="password" name="password" onChange={onChange} minLength={5} required />
-        </div>
-        <div className="my-2">
-          <label htmlFor="cpassword" className="form-label">Confirm Password</label>
-          <input type="password" className="form-control" id="cpassword" name="cpassword" onChange={onChange} minLength={5} required />
-        </div>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label fw-semibold small text-uppercase text-muted">Email Address</label>
+                        <div className="input-group">
+                            <span className="input-group-text bg-light border-0"><i className="fa-solid fa-envelope text-primary"></i></span>
+                            <input 
+                                type="email" 
+                                className="form-control" 
+                                id="email" 
+                                name="email" 
+                                onChange={onChange} 
+                                placeholder="name@example.com" 
+                                required 
+                            />
+                        </div>
+                    </div>
 
-        <button type="submit" className="btn btn-primary my-2">Submit</button>
-      </form>
-    </div>
-  )
+                    <div className="row">
+                        <div className="col-md-6 mb-3">
+                            <label htmlFor="password" className="form-label fw-semibold small text-uppercase text-muted">Password</label>
+                            <input 
+                                type="password" 
+                                className="form-control" 
+                                id="password" 
+                                name="password" 
+                                onChange={onChange} 
+                                placeholder="••••••••" 
+                                minLength={5} 
+                                required 
+                            />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            <label htmlFor="cpassword" className="form-label fw-semibold small text-uppercase text-muted">Confirm</label>
+                            <input 
+                                type="password" 
+                                className="form-control" 
+                                id="cpassword" 
+                                name="cpassword" 
+                                onChange={onChange} 
+                                placeholder="••••••••" 
+                                minLength={5} 
+                                required 
+                            />
+                        </div>
+                    </div>
+
+                    <div className="d-grid gap-2 mt-2">
+                        <button type="submit" className="btn btn-primary py-2 fw-bold">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <div className="text-center mt-4">
+                        <p className="small text-muted">
+                            Already have an account? <span className="text-primary cursor-pointer fw-bold" onClick={() => navigate('/login')}>Login</span>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
 }
 
-export default Signup
+export default Signup;
